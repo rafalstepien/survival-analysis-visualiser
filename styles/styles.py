@@ -6,13 +6,13 @@ mnm_color_pallete = {"mnm_blue":"#27384A",
                      "PCBB_burgundy":"#BC0020"
                      }
 
-fig_height = 700
+fig_height = 1300
 border_color = mnm_color_pallete["mnm_blue"]
 background_color = mnm_color_pallete["mnm_grey"]
 font_color = mnm_color_pallete["mnm_blue"]
 components_color = mnm_color_pallete["mnm_lightgrey"]
 
-graph_height = '600px'
+graph_height = '1200px'
 padding = '10px 10px 10px 10px'
 border_radius = 5
 margin = 5
