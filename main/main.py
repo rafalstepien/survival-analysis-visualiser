@@ -51,8 +51,12 @@ table = html.Div(dbc.Table(), id='km_table')
 
 # --------------------------- LAYOUT ---------------------------
 app.layout = html.Div([
-    dcc.Upload(id='upload-data', children = [dbc.Button("Upload file", color='primary')]),
-    html.Div(id='tmp_div'),
+    dbc.Col([
+        dbc.Row([
+            dcc.Upload(id='upload-data', children = [dbc.Button("Upload file", color='primary')]),
+            html.Div(id='tmp_div'),
+        ])
+    ]),
     default,
     dbc.Col(table),
 ])
@@ -64,8 +68,17 @@ app.layout = html.Div([
      Input('upload-data', 'filename')])
 def update_output(content, filename):
     if content is not None:
-        df = parse_input_file(content, filename)
+        df, _ = parse_input_file(content, filename)
         return html.Div(dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, responsive=True), style={'maxHeight': '800px', 'overflow': 'scroll'})
+
+@app.callback(
+    Output('tmp_div', 'children'),
+    [Input('upload-data', 'contents'),
+     Input('upload-data', 'filename')])
+def update_unknown(content, filename):
+    if content is not None:
+        _, uknown = parse_input_file(content, filename)
+        return html.Div(f'Number of other/no info about response: {uknown}')
 
 if __name__ == "__main__":
     app.run_server(debug=True)
