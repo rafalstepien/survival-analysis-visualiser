@@ -15,29 +15,25 @@ def parse_input_file(content, filename):
     if 'csv' in filename:
         df = pd.read_csv(
             io.StringIO(decoded.decode('utf-8')), sep=';')
-        df.columns = ['SAMPLE_ID', 'HRD', 'HRP', 'RESPONDER']
+        df.columns = ['SAMPLE_ID', 'HRD', 'HRP', 'RESPONDER', 'OS', 'CAL1', 'PFS', 'CAL2']
         df, number_of_unknown = convert_dataframe(df)
     return df, number_of_unknown
 
 
 def convert_dataframe(dataframe):
-    new_df = pd.DataFrame(columns=['SAMPLE_ID', 'HRD_RES', 'HRD_NON_RES', 'HRP_RES', 'HRP_NON_RES'])
+    cols = ['SAMPLE_ID', 'HRD_RES', 'HRD_NON_RES', 'HRP_RES', 'HRP_NON_RES', 'OS', 'CAL1', 'PFS', 'CAL2']
+    new_df = pd.DataFrame(columns=cols)
     number_of_unknown = 0
     for _, row in dataframe.iterrows():
         if math.isnan(row.RESPONDER):
-            # DO NOT ADD IF WE DONT KNOW IF PATIENT IS RESPONDER OR NONRESPONDER
             number_of_unknown += 1
         else:
             if int(row.HRD) == 1 and int(row.RESPONDER) == 1:
-                # HRD RES
-                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 1, 0, 0, 0]], columns=['SAMPLE_ID', 'HRD_RES', 'HRD_NON_RES', 'HRP_RES', 'HRP_NON_RES']))
+                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 1, 0, 0, 0, row.OS, row.CAL1, row.PFS, row.CAL2]], columns=cols))
             elif int(row.HRD) == 1 and int(row.RESPONDER) == 0:
-                # HRD NONRES
-                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 0, 1, 0, 0]], columns=['SAMPLE_ID', 'HRD_RES', 'HRD_NON_RES', 'HRP_RES', 'HRP_NON_RES']))
+                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 0, 1, 0, 0, row.OS, row.CAL1, row.PFS, row.CAL2]], columns=cols))
             elif int(row.HRD) == 0 and int(row.RESPONDER) == 1:
-                # HRP RES
-                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 0, 0, 1, 0]], columns=['SAMPLE_ID', 'HRD_RES', 'HRD_NON_RES', 'HRP_RES', 'HRP_NON_RES']))
+                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 0, 0, 1, 0, row.OS, row.CAL1, row.PFS, row.CAL2]], columns=cols))
             elif int(row.HRD) == 0 and int(row.RESPONDER) == 0:
-                # HRP NONRES
-                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 0, 0, 0, 1]], columns=['SAMPLE_ID', 'HRD_RES', 'HRD_NON_RES', 'HRP_RES', 'HRP_NON_RES']))
+                new_df = new_df.append(pd.DataFrame([[row.SAMPLE_ID, 0, 0, 0, 1, row.OS, row.CAL1, row.PFS, row.CAL2]], columns=cols))
     return new_df, number_of_unknown

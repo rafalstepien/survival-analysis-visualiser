@@ -1,6 +1,7 @@
 #!/bin/python3
 
 import numpy as np
+import pandas as pd
 import sys, os
 
 import base64
@@ -19,6 +20,7 @@ sys.path[0] = f'{project_path}'
 
 from helpers.helpers import parse_input_file
 from styles.styles import *
+from plots.plots import *
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
@@ -28,7 +30,7 @@ server = Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
 
 # --------------------------- BODY ---------------------------
-default = dcc.Graph(
+km_plot = html.Div(dcc.Graph(
             figure={
                 'data': [
                     {'x': [],
@@ -36,7 +38,7 @@ default = dcc.Graph(
                     }
                 ],
                 'layout': {
-                    "height": 900,
+                    "height": 850,
                     'plot_bgcolor': 'white',
                     'paper_bgcolor': 'white',
                     'font': {
@@ -44,35 +46,42 @@ default = dcc.Graph(
                     }
                 }
             },
-            id="default-plot"
-        )
+        ), id="km-plot")
 
-table = html.Div(dbc.Table(), id='km_table')
+# table = html.Div(dbc.Table(), id='km-table')
+
+radios = html.Div(dcc.RadioItems(
+            id='os-pfs-radio',
+            options=[{'label': i, 'value': i} for i in ['OS', 'PFS']],
+            value='OS',
+            ),style={'width': '48%', 'float': 'right', 'size': 20})
 
 # --------------------------- LAYOUT ---------------------------
 app.layout = html.Div([
     dbc.Col([
         dbc.Row([
             dcc.Upload(id='upload-data', children = [dbc.Button("Upload file", color='primary')]),
-            html.Div(id='tmp_div'),
+            dbc.Col(radios, width=1),
+            dbc.Col(html.H5(id='info-div'), width=8),
         ])
     ]),
-    default,
-    dbc.Col(table),
+    km_plot,
+    # dbc.Col(table),
+    # html.Div(id='tmp-div')
 ])
 
 # --------------------------- CALLBACKS ---------------------------
-@app.callback(
-    Output('km_table', 'children'),
-    [Input('upload-data', 'contents'),
-     Input('upload-data', 'filename')])
-def update_output(content, filename):
-    if content is not None:
-        df, _ = parse_input_file(content, filename)
-        return html.Div(dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, responsive=True), style={'maxHeight': '800px', 'overflow': 'scroll'})
+# @app.callback(
+#     Output('km-table', 'children'),
+#     [Input('upload-data', 'contents'),
+#      Input('upload-data', 'filename')])
+# def update_output(content, filename):
+#     if content is not None:
+#         df, _ = parse_input_file(content, filename)
+#         return html.Div(dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, responsive=True), style={'maxHeight': '800px', 'overflow': 'scroll'})
 
 @app.callback(
-    Output('tmp_div', 'children'),
+    Output('info-div', 'children'),
     [Input('upload-data', 'contents'),
      Input('upload-data', 'filename')])
 def update_unknown(content, filename):
@@ -80,5 +89,23 @@ def update_unknown(content, filename):
         _, uknown = parse_input_file(content, filename)
         return html.Div(f'Number of other/no info about response: {uknown}')
 
+@app.callback(
+    # Output('km-plot', 'figure'),
+    Output('km-plot', 'children'),
+    [Input('os-pfs-radio', 'value'),
+     Input('upload-data', 'contents'),
+     Input('upload-data', 'filename')]
+)
+def update_plot(os_pfs, file_content, filename):
+    if file_content is not None:
+        os_pfs_dataframe, _ = parse_input_file(file_content, filename)
+        figure = plot_main_graph(os_pfs, os_pfs_dataframe)
+        g = dcc.Graph(figure=figure)
+
+        return g
+
 if __name__ == "__main__":
+    # pd.set_option('display.max_columns', None)  # or 1000
+    # pd.set_option('display.max_rows', None)  # or 1000
+    # pd.set_option('display.max_colwidth', None)  # or 199
     app.run_server(debug=True)
