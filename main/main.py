@@ -16,6 +16,7 @@ from flask import Flask, request, Response
 
 path_to_home = os.getenv('HOME')
 sys.path[0] = f'{path_to_home}/survival-analysis-visualiser/'
+print(sys.path[0])
 
 from helpers.helpers import parse_input_file
 from styles.styles import *
