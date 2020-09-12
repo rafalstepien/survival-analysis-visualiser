@@ -14,9 +14,8 @@ import plotly.graph_objects as go
 from dash.dependencies import Input, Output
 from flask import Flask, request, Response
 
-home = os.getenv('HOME')
-project_path = f"{home}/Dash/survival-analysis-visualiser"
-sys.path[0] = f'{project_path}'
+path_to_home = os.getenv('HOME')
+sys.path[0] = f'{path_to_home}/survival-analysis-visualiser/'
 
 from helpers.helpers import parse_input_file
 from styles.styles import *
@@ -48,8 +47,6 @@ km_plot = html.Div(dcc.Graph(
             },
         ), id="km-plot")
 
-# table = html.Div(dbc.Table(), id='km-table')
-
 radios = html.Div(dcc.RadioItems(
             id='os-pfs-radio',
             options=[{'label': i, 'value': i} for i in ['OS', 'PFS']],
@@ -66,20 +63,9 @@ app.layout = html.Div([
         ])
     ]),
     km_plot,
-    # dbc.Col(table),
-    # html.Div(id='tmp-div')
 ])
 
 # --------------------------- CALLBACKS ---------------------------
-# @app.callback(
-#     Output('km-table', 'children'),
-#     [Input('upload-data', 'contents'),
-#      Input('upload-data', 'filename')])
-# def update_output(content, filename):
-#     if content is not None:
-#         df, _ = parse_input_file(content, filename)
-#         return html.Div(dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, responsive=True), style={'maxHeight': '800px', 'overflow': 'scroll'})
-
 @app.callback(
     Output('info-div', 'children'),
     [Input('upload-data', 'contents'),
@@ -90,7 +76,6 @@ def update_unknown(content, filename):
         return html.Div(f'Number of other/no info about response: {uknown}')
 
 @app.callback(
-    # Output('km-plot', 'figure'),
     Output('km-plot', 'children'),
     [Input('os-pfs-radio', 'value'),
      Input('upload-data', 'contents'),
@@ -100,12 +85,8 @@ def update_plot(os_pfs, file_content, filename):
     if file_content is not None:
         os_pfs_dataframe, _ = parse_input_file(file_content, filename)
         figure = plot_main_graph(os_pfs, os_pfs_dataframe)
-        g = dcc.Graph(figure=figure)
-
-        return g
+        graph_to_update = dcc.Graph(figure=figure)
+        return graph_to_update
 
 if __name__ == "__main__":
-    # pd.set_option('display.max_columns', None)  # or 1000
-    # pd.set_option('display.max_rows', None)  # or 1000
-    # pd.set_option('display.max_colwidth', None)  # or 199
     app.run_server(debug=True)

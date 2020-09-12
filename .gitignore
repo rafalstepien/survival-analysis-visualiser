@@ -1,2 +1,4 @@
 __pycache__/
 data/
+.vscode/
+styles/__pycache__/

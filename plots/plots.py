@@ -10,11 +10,6 @@ def get_data(os_pfs_dataframe, os_pfs):
     df_hrp_res = df.loc[df['HRD_NON_RES'] == 1][['SAMPLE_ID', f'{os_pfs}']]
     df_hrp_non_res = df.loc[df['HRP_NON_RES'] == 1][['SAMPLE_ID', f'{os_pfs}']]
 
-    df_hrd_res.to_csv('/home/rafcio/hrd_res.csv', index=False)
-    df_hrd_non_res.to_csv('/home/rafcio/hrd_non_res.csv', index=False)
-    df_hrp_res.to_csv('/home/rafcio/hrp_res.csv', index=False)
-    df_hrp_non_res.to_csv('/home/rafcio/hrp_non_res.csv', index=False)
-
     vect_hrd_res = getattr(df_hrd_res, os_pfs).str.replace(',', '.').astype('float')
     vect_hrd_non_res = getattr(df_hrd_non_res, os_pfs).str.replace(',', '.').astype('float')
     vect_hrp_res = getattr(df_hrp_res, os_pfs).str.replace(',', '.').astype('float')
