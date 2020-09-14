@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+    app:
+        image: "visualiser:latest"
+        volumes:
+            - ./visualiser/:/visualiser/
+        ports:
+            - "8050:8050"
